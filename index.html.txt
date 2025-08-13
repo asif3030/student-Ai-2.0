@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student AI Chat</title>
+<style>
+  body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+  #chat { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+  textarea { width: 100%; height: 80px; }
+  button { padding: 10px 15px; margin-top: 10px; cursor: pointer; }
+  .message { margin-top: 15px; padding: 10px; border-radius: 5px; }
+  .user { background: #d1e7dd; }
+  .ai { background: #f8d7da; }
+</style>
+</head>
+<body>
+<div id="chat">
+  <h2>Student AI</h2>
+  <textarea id="userInput" placeholder="Write your message..."></textarea>
+  <button onclick="sendMessage()">Send</button>
+  <div id="messages"></div>
+</div>
+
+<script>
+const API_KEY = "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";
+
+async function sendMessage() {
+    let input = document.getElementById("userInput").value;
+    if (!input) return;
+
+    document.getElementById("messages").innerHTML += `<div class='message user'><b>You:</b> ${input}</div>`;
+    document.getElementById("userInput").value = "";
+
+    let responseBox = document.createElement("div");
+    responseBox.classList.add("message", "ai");
+    responseBox.innerHTML = "<b>AI:</b> Thinking...";
+    document.getElementById("messages").appendChild(responseBox);
+
+    try {
+        let res = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini",
+                messages: [{ role: "user", content: input }]
+            })
+        });
+        let data = await res.json();
+        let reply = data.choices[0].message.content;
+        responseBox.innerHTML = `<b>AI:</b> ${reply}`;
+    } catch (error) {
+        responseBox.innerHTML = "<b>AI:</b> Error fetching response.";
+    }
+}
+</script>
+</body>
+</html>
